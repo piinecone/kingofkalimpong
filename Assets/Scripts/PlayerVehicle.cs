@@ -30,6 +30,8 @@ public class PlayerVehicle : MonoBehaviour {
     getVehicleBodyComponents();
     setupCameras();
     getDestructionAudio();
+    projectileCamera.Initialize(camera: mainCamera, slingshot: slingshot);
+    slingshot.projectileCamera = projectileCamera;
   }
 
   void Start(){
@@ -62,7 +64,6 @@ public class PlayerVehicle : MonoBehaviour {
   private void setupCameras(){
     mainCamera = GameObject.FindWithTag("MainCamera").camera;
     projectileCamera = GetComponentInChildren<ProjectileCamera>() as ProjectileCamera;
-    projectileCamera.Deactivate();
     //if (networkView.isMine){
     mainCamera.GetComponent<CamSmoothFollow>().target = vehicleController.CenterOfMass;
     //}
@@ -100,14 +101,20 @@ public class PlayerVehicle : MonoBehaviour {
   private bool shouldBeDestroyedBy(Collider aCollider){
     if (!destroyed && aCollider.rigidbody != null){
       float impactForce = aCollider.rigidbody.velocity.magnitude;
-      if (aCollider.gameObject.tag == "Nugget" && impactForce >= 23f &&
-          rigidbody.velocity.magnitude <= impactForce && impactIsCloseEnoughToImpactPoint(aCollider, impactForce + 10f))
-        return true;
-      if (aCollider.gameObject.tag == "Rock" && impactForce >= 13f &&
-          !slingshot.LaunchedThisProjectile(aCollider.gameObject) && impactIsCloseEnoughToImpactPoint(aCollider, impactForce))
-        return true;
+      if (shouldBeDestroyedByVehicleCollisionWith(aCollider, impactForce)) return true;
+      if (shouldBeDestroyedByProjectileCollisionWith(aCollider, impactForce)) return true;
     }
     return false;
+  }
+
+  private bool shouldBeDestroyedByVehicleCollisionWith(Collider aCollider, float impactForce){
+    return (aCollider.gameObject.tag == "Nugget" && impactForce >= 23f &&
+        rigidbody.velocity.magnitude <= impactForce && impactIsCloseEnoughToImpactPoint(aCollider, impactForce + 10f));
+  }
+
+  private bool shouldBeDestroyedByProjectileCollisionWith(Collider aCollider, float impactForce){
+    return (aCollider.gameObject.tag == "Rock" && impactForce >= 13f &&
+        !slingshot.LaunchedThisProjectile(aCollider.gameObject) && impactIsCloseEnoughToImpactPoint(aCollider, impactForce));
   }
 
   private bool impactIsCloseEnoughToImpactPoint(Collider aCollider, float impactForce){
