@@ -3,13 +3,16 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+  [SerializeField]
+  private bool nonPlayerCharacter = false;
+
+  void Awake(){
+    if (nonPlayerCharacter) GetComponentInChildren<CarControl>().readUserInput = false;
+  }
+
+  void Start () {
+  }
+
+  void Update () {
+  }
 }
