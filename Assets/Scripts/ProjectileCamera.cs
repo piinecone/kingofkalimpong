@@ -2,34 +2,67 @@
 using System.Collections;
 
 public class ProjectileCamera : MonoBehaviour {
-  void Awake(){
-  }
 
-  void Start () {
-  }
+  private Camera mainCamera;
+  private Slingshot slingshot;
+  public GameObject projectile;
+  public Vector3 launchPosition;
+  public Vector3 launchDirection;
 
   void Update () {
-    //if (active){
-    //  if (launchedProjectile != null){
-    //    Vector3 targetPosition = launchedProjectile.transform.position;
-    //    Vector3 lineOfSight = launchedProjectile.transform.position - lastLaunchPosition;
-    //    targetPosition -= lineOfSight.normalized * 15f;
-    //    targetPosition.y += 20f;
-    //    projectileCamera.transform.position = Vector3.Lerp(projectileCamera.transform.position, targetPosition, Time.deltaTime);
-    //    Vector3 lookDirection = lastLaunchDirection + (2f * Vector3.down) + (launchedProjectile.transform.position - projectileCamera.transform.position);
-    //    projectileCamera.transform.rotation = Quaternion.Slerp(projectileCamera.transform.rotation, Quaternion.LookRotation(lookDirection.normalized), 50f * Time.deltaTime);
-    //  } else {
-    //    projectileCameraMode = false;
-    //  }
-    //} else if (armedProjectile != null) {
-    //  Vector3 targetPosition = armedProjectile.transform.position;
-    //  targetPosition += armedProjectile.transform.forward * 5f;
-    //  projectileCamera.transform.position = targetPosition;
-    //  projectileCamera.transform.LookAt(armedProjectile.transform.position);
-    //}
+    trackProjectile();
   }
 
-  public void Deactivate(){
-    gameObject.SetActive(false);
+  public void Initialize(Camera camera, Slingshot slingshot){
+    this.mainCamera = camera;
+    this.slingshot = slingshot;
+    deactivate();
+  }
+
+  private void trackProjectile(){
+    if (this.active){
+      if (projectile != null){
+        Vector3 targetPosition = projectile.transform.position;
+        Vector3 lineOfSight = projectile.transform.position - launchPosition;
+        targetPosition -= lineOfSight.normalized * 15f;
+        targetPosition.y += 20f;
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime);
+        Vector3 lookDirection = launchDirection + (2f * Vector3.down) + (projectile.transform.position - transform.position);
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(lookDirection.normalized), 50f * Time.deltaTime);
+      } else {
+        reset();
+      }
+    } else {
+      reset();
+    }
+  }
+
+  public void Toggle(){
+    bool switchToProjectileMode = false;
+    if (projectile != null && projectile.rigidbody.velocity.magnitude >= 5f)
+      switchToProjectileMode = !this.active;
+    if (!switchToProjectileMode) reset();
+    this.active = switchToProjectileMode;
+    mainCamera.active = !switchToProjectileMode;
+  }
+
+  private void reset(){
+    Vector3 targetPosition = slingshot.transform.position;
+    targetPosition += slingshot.transform.forward * 5f;
+    transform.position = targetPosition;
+    transform.LookAt(slingshot.transform);
+    this.active = false;
+    mainCamera.active = true;
+  }
+
+  public void deactivate(){
+    this.active = false;
+    mainCamera.active = !active;
+  }
+
+  public void SetLaunchedProperties(GameObject projectile, Vector3 position, Vector3 direction){
+    launchPosition = position;
+    launchDirection = direction;
+    this.projectile = projectile;
   }
 }

@@ -17,6 +17,12 @@ public class Projectile : MonoBehaviour {
   void OnNetworkInstantiate(NetworkMessageInfo info){
   }
 
+  public void Loosen(){
+    Release();
+    enableCollider();
+    rigidbody.mass = 20;
+  }
+
   public void Activate(){ // used to be enableProjectile
     Release();
     enableCollider();

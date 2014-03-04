@@ -22,7 +22,8 @@ public class VehicleComponent : MonoBehaviour {
   public void DetachWithForce(Vector3 force){
     detachmentForce = force * 4000f;
     enableRigidbody();
-    Invoke("orphan", .01f);
+    orphan();
+    //Invoke("orphan", .01f);
     // FIXME network destroy
     //Destroy(gameObject, Random.Range(6f, 12f));
   }

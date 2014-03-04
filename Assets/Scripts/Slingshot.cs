@@ -17,6 +17,9 @@ public class Slingshot : MonoBehaviour {
   private Projectile projectile;
   private Vector3 lastLaunchPosition;
   private Vector3 lastLaunchDirection;
+  private bool deactivated = false;
+  private bool isNonPlayerCharacter = false;
+  public ProjectileCamera projectileCamera;
 
   void Awake(){
     vehicle = transform.parent.GetComponent<PlayerVehicle>();
@@ -25,17 +28,26 @@ public class Slingshot : MonoBehaviour {
   }
 
   void Start () {
+    isNonPlayerCharacter = vehicle.NonPlayerCharacter();
   }
 
   void Update () {
+    if (isNonPlayerCharacter || deactivated) return;
+
     // if (networkView.isMine){
     aim();
     chargeProjectile();
+    toggleProjectileCamera();
     // }
   }
 
+  private void toggleProjectileCamera(){
+    if (Input.GetKeyDown(KeyCode.C))
+      projectileCamera.Toggle();
+  }
+
   private void aim(){
-    if (!Camera.main.active) return;
+    if (Camera.main == null || !Camera.main.active) return;
 
     // capture mouse input
     Vector3 mousePosition = Input.mousePosition;
@@ -82,14 +94,15 @@ public class Slingshot : MonoBehaviour {
 
   void launchProjectile(){
     if (projectile != null){
-      recordLaunchPositionAndDirection();
       fireProjectile();
+      recordLaunchPositionAndDirection();
     }
   }
 
   private void recordLaunchPositionAndDirection(){
     lastLaunchPosition = transform.position;
     lastLaunchDirection = transform.forward;
+    projectileCamera.SetLaunchedProperties(projectile: launchedProjectile, position: lastLaunchPosition, direction: lastLaunchDirection);
   }
 
   private void fireProjectile(){
@@ -119,10 +132,13 @@ public class Slingshot : MonoBehaviour {
 
   // FIXME merge all this when the time comes
   private void reload(){
+    if (deactivated) return;
+
     projectile = Instantiate(projectilePrefab, transform.position, transform.rotation) as Projectile;
     projectile.transform.parent = transform;
     projectile.Disable();
   }
+
   // uLink.Network.Instantiate(projectile, slingshot.Position(), slingshot.Rotation(), 0);
   //private void createProjectile(){
   //  //armedProjectile = Instantiate(projectile, origin, Quaternion.identity) as GameObject;
@@ -132,4 +148,17 @@ public class Slingshot : MonoBehaviour {
   //  disableProjectile();
   //  //networkView.RPC("SpawnProjectile", RPCMode.Server, slingshot.transform.position);
   //}
+
+  public void Deactivate(){
+    deactivated = true;
+    if (projectile) projectile.Loosen();
+  }
+
+  public bool LaunchedThisProjectile(GameObject projectileGameObject){
+    return launchedProjectiles.Contains(projectileGameObject);
+  }
+
+  void OnTriggerEnter(Collider aCollider){
+    vehicle.OnTriggerEnter(aCollider);
+  }
 }
