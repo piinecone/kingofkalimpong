@@ -14,6 +14,9 @@ public class PlayerVehicle : MonoBehaviour {
   [SerializeField]
   private GameObject vehicleBody;
 
+  [SerializeField]
+  private bool nonPlayerCharacter = false;
+
   private Camera mainCamera;
   private ProjectileCamera projectileCamera;
   private Slingshot slingshot;
@@ -32,6 +35,7 @@ public class PlayerVehicle : MonoBehaviour {
     getDestructionAudio();
     projectileCamera.Initialize(camera: mainCamera, slingshot: slingshot);
     slingshot.projectileCamera = projectileCamera;
+    if (nonPlayerCharacter) vehicleController.readUserInput = false;
   }
 
   void Start(){
