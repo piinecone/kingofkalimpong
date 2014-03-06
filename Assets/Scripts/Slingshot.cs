@@ -8,6 +8,7 @@ public class Slingshot : MonoBehaviour {
   private Projectile projectilePrefab;
 
   private PlayerVehicle vehicle;
+  private Vector3 mousePosition = Vector3.zero;
   private float relativeVelocityMultiplier = 100000f;
   private float launchForce = 0f;
   private float minimumLaunchForce = 30000f;
@@ -20,11 +21,13 @@ public class Slingshot : MonoBehaviour {
   private bool deactivated = false;
   private bool isNonPlayerCharacter = false;
   public ProjectileCamera projectileCamera;
+  private InputSender inputSender;
 
   void Awake(){
     vehicle = transform.parent.GetComponent<PlayerVehicle>();
     reload();
     maximumLaunchForce = minimumLaunchForce * 2f;
+    inputSender = transform.parent.GetComponent<InputSender>();
   }
 
   void Start () {
@@ -34,11 +37,11 @@ public class Slingshot : MonoBehaviour {
   void Update () {
     if (isNonPlayerCharacter || deactivated) return;
 
-    // if (networkView.isMine){
-    aim();
+    //if (inputSender != null)
+    //  mousePosition = Input.mousePosition;
+    //  Aim(mousePosition);
     chargeProjectile();
     toggleProjectileCamera();
-    // }
   }
 
   private void toggleProjectileCamera(){
@@ -46,11 +49,10 @@ public class Slingshot : MonoBehaviour {
       projectileCamera.Toggle();
   }
 
-  private void aim(){
+  public void Aim(Vector3 mousePosition){
     if (Camera.main == null || !Camera.main.active) return;
 
-    // capture mouse input
-    Vector3 mousePosition = Input.mousePosition;
+    // wrangle mouse input
     Ray mouseRay = Camera.main.ScreenPointToRay(mousePosition);
     Vector3 lookDirection = mouseRay.direction;
 

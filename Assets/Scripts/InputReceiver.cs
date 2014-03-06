@@ -5,9 +5,16 @@ using uLink;
 public class InputReceiver : uLink.MonoBehaviour {
 
   private CarControl carControl;
+  private Slingshot slingshot;
 
   void Awake(){
     carControl = GetComponent<CarControl>();
+    slingshot = GetComponentInChildren<Slingshot>();
+  }
+
+  [RPC]
+  void SetMousePosition(Vector3 mousePosition){
+    slingshot.Aim(mousePosition);
   }
 
   [RPC]
