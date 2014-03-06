@@ -4,6 +4,7 @@ using System.Collections;
 public class PlayerVehicleCreator : uLink.MonoBehaviour {
   private Camera mainCamera;
   private SlingshotCreator slingshot;
+  private ProjectileCreator projectile;
 
   void Awake(){
     slingshot = GetComponentInChildren<SlingshotCreator>();
@@ -29,7 +30,16 @@ public class PlayerVehicleCreator : uLink.MonoBehaviour {
   public void ReloadProjectile(uLink.NetworkPlayer player, int ownerViewId){
     Debug.Log("Received player: " + player + " and: " + ownerViewId);
     //networkView.RPC("ReloadProjectile", uLink.RPCMode.OthersExceptOwner, player);
-    slingshot.Reload(player, ownerViewId);
+    projectile = slingshot.Reload(player, ownerViewId);
+  }
+
+  [RPC]
+  public void LaunchProjectile(Vector3 launchForce, Vector3 relativeForce, int shooterId){
+    Debug.Log("Server: received RPC request to launch projectile");
+    if (projectile != null){
+      Debug.Log("Server: launching projectile: " + projectile);
+      projectile.Fire(launchForce, relativeForce);
+    }
   }
 }
 

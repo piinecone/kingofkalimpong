@@ -93,14 +93,10 @@ public class SlingshotCreator : uLink.MonoBehaviour {
     Network.Destroy(launchedProjectile);
   }
 
-  public void Reload(uLink.NetworkPlayer player, int ownerViewId){
-    Debug.Log("Server is reloading projectile");
-    Debug.Log("Instantiating new projectile on the server for player: " + player);
+  public ProjectileCreator Reload(uLink.NetworkPlayer player, int ownerViewId){
     projectile = uLink.Network.Instantiate(player, "Projectile@Proxy", "Projectile@Owner", "Projectile@Creator", transform.position, transform.rotation, 0, ownerViewId).GetComponent<ProjectileCreator>();
-    Debug.Log("instantiated projectile: " + projectile);
-    Debug.Log("projectile network view: " + projectile.GetNetworkView());
-    Debug.Log("projectile network view owner is " + projectile.GetNetworkView().owner);
     projectile.transform.parent = transform;
+    return projectile;
   }
 
   // FIXME merge all this when the time comes

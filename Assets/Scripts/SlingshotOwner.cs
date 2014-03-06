@@ -15,7 +15,7 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   private float maximumLaunchForce;
   private List<GameObject> launchedProjectiles = new List<GameObject>();
   private GameObject launchedProjectile;
-  private Projectile projectile;
+  private ProjectileOwner projectile;
   private Vector3 lastLaunchPosition;
   private Vector3 lastLaunchDirection;
   private bool deactivated = false;
@@ -23,12 +23,11 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   //public ProjectileCamera projectileCamera;
   private InputSender inputSender;
   private uLink.NetworkView networkView;
+  private uLink.NetworkPlayer player;
 
   void Awake(){
     vehicle = transform.parent.GetComponent<PlayerVehicleOwner>();
     networkView = vehicle.GetNetworkView();
-    Debug.Log("got network view: " + networkView);
-    //reload();
     maximumLaunchForce = minimumLaunchForce * 2f;
     inputSender = transform.parent.GetComponent<InputSender>();
     //projectileCamera.gameObject.SetActive(false);
@@ -37,10 +36,12 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   void uLink_OnNetworkInstantiate(uLink.NetworkMessageInfo info){
     vehicle = transform.parent.GetComponent<PlayerVehicleOwner>();
     networkView = vehicle.GetNetworkView();
-    uLink.NetworkPlayer player = uLink.Network.player;
-    Debug.Log("instantiated slingshot for player: " + player);
-    Debug.Log("asking server to instantiate a projectile...");
-    networkView.RPC("ReloadProjectile", uLink.RPCMode.Server, player, networkView.viewID.id);
+    player = uLink.Network.player;
+    reload();
+  }
+
+  public void SetProjectile(ProjectileOwner projectile){
+    this.projectile = projectile;
   }
 
   //void Start () {
@@ -91,7 +92,6 @@ public class SlingshotOwner : uLink.MonoBehaviour {
 
   public void chargeProjectile(){
     if (Input.GetMouseButton(0)){
-      Debug.Log("charging projectile");
       launchForce = Mathf.Max(launchForce + minimumLaunchForce/75f, minimumLaunchForce);
     } else {
       if (launchForce >= minimumLaunchForce) launchProjectile();
@@ -106,8 +106,9 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   }
 
   void launchProjectile(){
-    Debug.Log("launching projectile");
+    Debug.Log("Client: attempting to launch the projectile");
     if (projectile != null){
+      Debug.Log("Client: projectile is present, launching...");
       fireProjectile();
       recordLaunchPositionAndDirection();
     }
@@ -120,9 +121,11 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   }
 
   private void fireProjectile(){
+    Debug.Log("Client: firing projectile via RPC");
     Vector3 launchForceVector = launchVector();
     Vector3 relativeForceVector = determineRelativeForceVector();
-    projectile.Fire(launchForce: launchForceVector, relativeForce: relativeForceVector);
+    networkView.RPC("LaunchProjectile", uLink.RPCMode.Server, launchForceVector, relativeForceVector, networkView.viewID.id);
+    projectile.Release();
     prepareNextProjectile();
   }
 
@@ -135,19 +138,22 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   private void prepareNextProjectile(){
     launchedProjectile = projectile.gameObject;
     launchedProjectiles.Add(launchedProjectile);
-    projectile.Arm();
+    //projectile.Arm();
     projectile = null;
-    //Invoke("reload", 1f);
+    Invoke("reload", 1f);
   }
 
   private void destroyLaunchedProjectile(){
     Network.Destroy(launchedProjectile);
   }
 
-  // FIXME merge all this when the time comes
-  //private void reload(){
-  //  if (deactivated) return;
+  private void reload(){
+    if (deactivated) return;
+    networkView.RPC("ReloadProjectile", uLink.RPCMode.Server, player, networkView.viewID.id);
+  }
 
+  // FIXME merge all this when the time comes
+  //  if (deactivated) return;
   //  projectile = Instantiate(projectilePrefab, transform.position, transform.rotation) as Projectile;
   //  projectile.transform.parent = transform;
   //  projectile.Disable();
@@ -155,7 +161,7 @@ public class SlingshotOwner : uLink.MonoBehaviour {
 
   public void Deactivate(){
     deactivated = true;
-    if (projectile) projectile.Loosen();
+    //if (projectile) projectile.Loosen(); // RPC to drop the boulder
   }
 
   public bool LaunchedThisProjectile(GameObject projectileGameObject){

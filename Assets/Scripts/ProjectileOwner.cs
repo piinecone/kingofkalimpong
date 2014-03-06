@@ -8,8 +8,6 @@ public class ProjectileOwner : uLink.MonoBehaviour {
 
   void Awake(){
     Debug.Log("Projectile owner is awake");
-    smoothRigidbody = GetComponent<uLinkSmoothRigidbodyImproved>();
-    disablePhysics();
   }
 
   void Start () {
@@ -20,11 +18,28 @@ public class ProjectileOwner : uLink.MonoBehaviour {
   
   }
 
+  public void Release(){
+    transform.parent = null;
+    smoothRigidbody.enabled = true;
+    rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+    rigidbody.constraints = RigidbodyConstraints.None;
+    rigidbody.isKinematic = false;
+    Invoke("enableCollider", .25f);
+  }
+
+  private void enableCollider(){
+    collider.enabled = true;
+  }
+
   void uLink_OnNetworkInstantiate(uLink.NetworkMessageInfo info){
     int ownerViewId = info.networkView.initialData.Read<int>();
     uLink.NetworkView slingshotNetworkView = uLink.NetworkView.Find(new uLink.NetworkViewID(ownerViewId));
     slingshot = slingshotNetworkView.GetComponentInChildren<SlingshotOwner>();
+    slingshot.SetProjectile(this);
+    smoothRigidbody = GetComponent<uLinkSmoothRigidbodyImproved>();
+    disablePhysics();
     transform.parent = slingshot.transform;
+    transform.position = slingshot.transform.position;
   }
 
   private void disablePhysics(){

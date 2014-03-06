@@ -5,6 +5,8 @@ using uLink;
 public class ProjectileCreator : uLink.MonoBehaviour {
 
   private uLinkSmoothRigidbodyImproved smoothRigidbody;
+  private int ownerViewId;
+  private float torqueMultiplier = 150000f;
 
   void Awake(){
     smoothRigidbody = GetComponent<uLinkSmoothRigidbodyImproved>();
@@ -21,7 +23,21 @@ public class ProjectileCreator : uLink.MonoBehaviour {
   }
 
   public void Fire(Vector3 launchForce, Vector3 relativeForce){
-    Debug.Log("Server: fire projectile");
+    Debug.Log("Server: releasing physics lock on projectile");
+    Release();
+    Debug.Log("Server: firing projectile with " + launchForce + " and " + relativeForce);
+    rigidbody.AddForce(relativeForce);
+    rigidbody.AddForce(launchForce.x, launchForce.y, launchForce.z, ForceMode.Impulse);
+    rigidbody.AddTorque(transform.right * torqueMultiplier);
+    Arm();
+  }
+
+  public void Release(){
+    transform.parent = null;
+    smoothRigidbody.enabled = true;
+    rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+    rigidbody.constraints = RigidbodyConstraints.None;
+    rigidbody.isKinematic = false;
   }
 
   void uLink_OnNetworkInstantiate(uLink.NetworkMessageInfo info){
@@ -33,6 +49,11 @@ public class ProjectileCreator : uLink.MonoBehaviour {
   }
 
   public void Arm(){
+    Invoke("enableCollider", .25f);
+  }
+
+  private void enableCollider(){
+    collider.enabled = true;
   }
 
   public void Disable(){
