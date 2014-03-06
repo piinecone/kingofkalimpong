@@ -1,16 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PlayerVehicleOwner : uLink.MonoBehaviour {
+  [SerializeField]
+  private GameObject vehicleBody;
 
   private Camera mainCamera;
   private CarControl vehicleController;
   private CarSound vehicleAudio;
   private CarSettings vehicleSettings;
+  private List<VehicleComponent> vehicleComponents = new List<VehicleComponent>();
+  private SlingshotOwner slingshot;
+  private bool destroyed = false;
+  private DestructionAudio destructionAudio;
 
   void Awake(){
     mainCamera = GameObject.FindWithTag("MainCamera").camera;
     getVehicleComponents();
+    getVehicleBodyComponents();
   }
 
   void Start(){
@@ -23,6 +31,12 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
     vehicleController.readUserInput = true;
     vehicleAudio = GetComponent<CarSound>();
     vehicleSettings = GetComponent<CarSettings>();
+  }
+
+  private void getVehicleBodyComponents(){
+    VehicleComponent[] components = GetComponentsInChildren<VehicleComponent>(true);
+    foreach(VehicleComponent component in components)
+      vehicleComponents.Add(component);
   }
 
   void Update () {
@@ -38,6 +52,41 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
 
   public uLink.NetworkView GetNetworkView(){
     return networkView;
+  }
+
+  [RPC]
+  public void DestroyVehicle(Vector3 impactPosition){
+    Debug.Log("Owner received destroy vehicle command via RPC");
+    collider.enabled = false;
+    vehicleBody.collider.enabled = false;
+    //playDestructionSounds();
+    explode(impactPosition);
+    //slingshot.Deactivate();
+    destroyed = true;
+    //vehicleAudio.VehicleWasDestroyed();
+    //vehicleAudio.enabled = false;
+  }
+
+  private void explode(Vector3 impactPosition){
+    foreach (VehicleComponent component in vehicleComponents)
+      component.DetachWithForce(rigidbody.velocity);
+    generateExplosiveForceAtPosition(impactPosition);
+    vehicleController.readUserInput = false;
+  }
+
+  private void generateExplosiveForceAtPosition(Vector3 thePosition){
+    float power = 1000f;
+    float radius = 10f;
+    float upwardsModifier = 1f;
+    Collider[] colliders = Physics.OverlapSphere(thePosition, radius);
+    foreach (Collider hit in colliders){
+      if (hit && hit.rigidbody)
+        hit.rigidbody.AddExplosionForce(power, thePosition, radius, upwardsModifier, ForceMode.Impulse);
+    }
+  }
+
+  private void playDestructionSounds(){
+    //destructionAudio.Play();
   }
 }
 
@@ -127,20 +176,6 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
 //
 //  public void OnTriggerEnter(Collider aCollider){
 //    if (shouldBeDestroyedBy(aCollider)){
-//      destroyVehicle();
-//      collider.enabled = false;
-//      vehicleBody.collider.enabled = false;
-//      playDestructionSounds();
-//      explode(aCollider);
-//      slingshot.Deactivate();
-//    }
-//  }
-//
-//  private void destroyVehicle(){
-//    destroyed = true;
-//    vehicleAudio.VehicleWasDestroyed();
-//    vehicleAudio.enabled = false;
-//  }
 //
 //  private bool shouldBeDestroyedBy(Collider aCollider){
 //    if (!destroyed && aCollider.rigidbody != null){
