@@ -10,7 +10,6 @@ public class ProjectileCreator : uLink.MonoBehaviour {
 
   void Awake(){
     smoothRigidbody = GetComponent<uLinkSmoothRigidbodyImproved>();
-    Debug.Log(smoothRigidbody);
     Disable();
   }
 
@@ -23,9 +22,7 @@ public class ProjectileCreator : uLink.MonoBehaviour {
   }
 
   public void Fire(Vector3 launchForce, Vector3 relativeForce){
-    Debug.Log("Server: releasing physics lock on projectile");
     Release();
-    Debug.Log("Server: firing projectile with " + launchForce + " and " + relativeForce);
     rigidbody.AddForce(relativeForce);
     rigidbody.AddForce(launchForce.x, launchForce.y, launchForce.z, ForceMode.Impulse);
     rigidbody.AddTorque(transform.right * torqueMultiplier);
@@ -41,7 +38,6 @@ public class ProjectileCreator : uLink.MonoBehaviour {
   }
 
   void uLink_OnNetworkInstantiate(uLink.NetworkMessageInfo info){
-    Debug.Log("Server: projectile creator instantiated; network view is " + networkView);
   }
 
   public uLink.NetworkView GetNetworkView(){

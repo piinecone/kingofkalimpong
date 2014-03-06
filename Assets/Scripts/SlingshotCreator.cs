@@ -23,7 +23,6 @@ public class SlingshotCreator : uLink.MonoBehaviour {
 
   void Awake(){
     vehicle = transform.parent.GetComponent<PlayerVehicleCreator>();
-    //reload();
     maximumLaunchForce = minimumLaunchForce * 2f;
     inputSender = transform.parent.GetComponent<InputSender>();
   }
@@ -40,7 +39,6 @@ public class SlingshotCreator : uLink.MonoBehaviour {
   public void ChargeProjectile(bool fireButtonPressed){
     //if (Input.GetMouseButton(0)){
     if (fireButtonPressed){
-      Debug.Log("charging projectile");
       launchForce = Mathf.Max(launchForce + minimumLaunchForce/75f, minimumLaunchForce);
     } else {
       if (launchForce >= minimumLaunchForce) launchProjectile();
@@ -55,7 +53,6 @@ public class SlingshotCreator : uLink.MonoBehaviour {
   }
 
   void launchProjectile(){
-    Debug.Log("launching projectile");
     if (projectile != null){
       fireProjectile();
       recordLaunchPositionAndDirection();
@@ -86,7 +83,6 @@ public class SlingshotCreator : uLink.MonoBehaviour {
     launchedProjectiles.Add(launchedProjectile);
     projectile.Arm();
     projectile = null;
-    //Invoke("reload", 1f);
   }
 
   private void destroyLaunchedProjectile(){
@@ -97,16 +93,6 @@ public class SlingshotCreator : uLink.MonoBehaviour {
     projectile = uLink.Network.Instantiate(player, "Projectile@Proxy", "Projectile@Owner", "Projectile@Creator", transform.position, transform.rotation, 0, ownerViewId).GetComponent<ProjectileCreator>();
     projectile.transform.parent = transform;
     return projectile;
-  }
-
-  // FIXME merge all this when the time comes
-  private void reload(){
-    if (deactivated) return;
-
-    Debug.Log("Instantiating projectile on the server");
-    //projectile = uLink.Network.Instantiate(player, "Projectile@Proxy", "Projectile@Owner", "Projectile@Creator", transform.position, transform.rotation, 0).GetComponent<ProjectileCreator>();
-    Debug.Log("instantiated projectile: " + projectile);
-    projectile.transform.parent = transform;
   }
 
   // uLink.Network.Instantiate(projectile, slingshot.Position(), slingshot.Rotation(), 0);

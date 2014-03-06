@@ -28,16 +28,13 @@ public class PlayerVehicleCreator : uLink.MonoBehaviour {
 
   [RPC]
   public void ReloadProjectile(uLink.NetworkPlayer player, int ownerViewId){
-    Debug.Log("Received player: " + player + " and: " + ownerViewId);
     //networkView.RPC("ReloadProjectile", uLink.RPCMode.OthersExceptOwner, player);
     projectile = slingshot.Reload(player, ownerViewId);
   }
 
   [RPC]
   public void LaunchProjectile(Vector3 launchForce, Vector3 relativeForce, int shooterId){
-    Debug.Log("Server: received RPC request to launch projectile");
     if (projectile != null){
-      Debug.Log("Server: launching projectile: " + projectile);
       projectile.Fire(launchForce, relativeForce);
     }
   }

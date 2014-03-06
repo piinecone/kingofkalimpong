@@ -7,7 +7,6 @@ public class ProjectileOwner : uLink.MonoBehaviour {
   private uLinkSmoothRigidbodyImproved smoothRigidbody;
 
   void Awake(){
-    Debug.Log("Projectile owner is awake");
   }
 
   void Start () {
