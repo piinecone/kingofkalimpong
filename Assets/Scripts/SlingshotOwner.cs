@@ -2,12 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Slingshot : MonoBehaviour {
+public class SlingshotOwner : uLink.MonoBehaviour {
 
   [SerializeField]
   private Projectile projectilePrefab;
 
-  private PlayerVehicle vehicle;
+  [SerializeField]
+  private uLinkNetworkView networkView;
+
+  private PlayerVehicleOwner vehicle;
   private Vector3 mousePosition = Vector3.zero;
   private float relativeVelocityMultiplier = 100000f;
   private float launchForce = 0f;
@@ -20,27 +23,26 @@ public class Slingshot : MonoBehaviour {
   private Vector3 lastLaunchDirection;
   private bool deactivated = false;
   private bool isNonPlayerCharacter = false;
-  public ProjectileCamera projectileCamera;
+  //public ProjectileCamera projectileCamera;
   private InputSender inputSender;
 
   void Awake(){
-    vehicle = transform.parent.GetComponent<PlayerVehicle>();
+    vehicle = transform.parent.GetComponent<PlayerVehicleOwner>();
     reload();
     maximumLaunchForce = minimumLaunchForce * 2f;
     inputSender = transform.parent.GetComponent<InputSender>();
+    //projectileCamera.gameObject.SetActive(false);
   }
 
-  void Start () {
-    isNonPlayerCharacter = vehicle.NonPlayerCharacter();
-  }
+  //void Start () {
+  //  isNonPlayerCharacter = vehicle.NonPlayerCharacter();
+  //}
 
   void Update () {
     if (isNonPlayerCharacter || deactivated) return;
 
-    //if (inputSender != null)
-    //  mousePosition = Input.mousePosition;
-    //  Aim(mousePosition);
-    //  chargeProjectile();
+    aim();
+    chargeProjectile();
     //toggleProjectileCamera();
   }
 
@@ -49,10 +51,11 @@ public class Slingshot : MonoBehaviour {
   //    projectileCamera.Toggle();
   //}
 
-  public void Aim(Vector3 mousePosition){
+  private void aim(){
     if (Camera.main == null || !Camera.main.active) return;
 
     // wrangle mouse input
+    Vector3 mousePosition = Input.mousePosition;
     Ray mouseRay = Camera.main.ScreenPointToRay(mousePosition);
     Vector3 lookDirection = mouseRay.direction;
 
@@ -73,15 +76,12 @@ public class Slingshot : MonoBehaviour {
     // complete the rotation
     Quaternion lookRotation = Quaternion.LookRotation(lookDirection);
     transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, 25f * Time.deltaTime);
-    //if (projectile != null) projectile.transform.rotation = transform.rotation;
-
-    // update the reticle
-    // updateReticlePosition();
+    vehicle.AimSlingshot(lookRotation);
+    //networkView.RPC("Aim", uLink.RPCMode.Server, lookRotation);
   }
 
-  public void ChargeProjectile(bool fireButtonPressed){
-    //if (Input.GetMouseButton(0)){
-    if (fireButtonPressed){
+  public void chargeProjectile(){
+    if (Input.GetMouseButton(0)){
       Debug.Log("charging projectile");
       launchForce = Mathf.Max(launchForce + minimumLaunchForce/75f, minimumLaunchForce);
     } else {
@@ -144,16 +144,6 @@ public class Slingshot : MonoBehaviour {
     projectile.Disable();
   }
 
-  // uLink.Network.Instantiate(projectile, slingshot.Position(), slingshot.Rotation(), 0);
-  //private void createProjectile(){
-  //  //armedProjectile = Instantiate(projectile, origin, Quaternion.identity) as GameObject;
-  //  armedProjectile = Network.Instantiate(projectile, slingshot.transform.position, slingshot.transform.rotation, 0) as GameObject;
-  //  Debug.Log("Instantiated projectile: " + armedProjectile);
-  //  armedProjectile.transform.parent = transform;
-  //  disableProjectile();
-  //  //networkView.RPC("SpawnProjectile", RPCMode.Server, slingshot.transform.position);
-  //}
-
   public void Deactivate(){
     deactivated = true;
     if (projectile) projectile.Loosen();
@@ -163,7 +153,7 @@ public class Slingshot : MonoBehaviour {
     return launchedProjectiles.Contains(projectileGameObject);
   }
 
-  void OnTriggerEnter(Collider aCollider){
-    vehicle.OnTriggerEnter(aCollider);
-  }
+  //void OnTriggerEnter(Collider aCollider){
+  //  vehicle.OnTriggerEnter(aCollider);
+  //}
 }

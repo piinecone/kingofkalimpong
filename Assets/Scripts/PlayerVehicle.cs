@@ -33,7 +33,7 @@ public class PlayerVehicle : MonoBehaviour {
     getVehicleBodyComponents();
     setupCameras();
     getDestructionAudio();
-    projectileCamera.Initialize(camera: mainCamera, slingshot: slingshot);
+    //projectileCamera.Initialize(camera: mainCamera, slingshot: slingshot);
     slingshot.projectileCamera = projectileCamera;
     if (nonPlayerCharacter) vehicleController.readUserInput = false;
   }

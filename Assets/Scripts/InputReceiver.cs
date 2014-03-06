@@ -12,10 +12,16 @@ public class InputReceiver : uLink.MonoBehaviour {
     slingshot = GetComponentInChildren<Slingshot>();
   }
 
-  [RPC]
-  void SetMousePosition(Vector3 mousePosition){
-    slingshot.Aim(mousePosition);
-  }
+  //[RPC]
+  //void SetMousePosition(Vector3 mousePosition){
+  //  slingshot.Aim(mousePosition);
+  //}
+
+  //[RPC]
+  //void SetLeftMouseButton(bool buttonPressed){
+  //  Debug.Log("RPC: sending charge projectile");
+  //  slingshot.ChargeProjectile(buttonPressed);
+  //}
 
   [RPC]
   void SetSteerInput(float steerInput){
