@@ -15,7 +15,7 @@ public class SlingshotCreator : uLink.MonoBehaviour {
   private float maximumLaunchForce;
   private List<GameObject> launchedProjectiles = new List<GameObject>();
   private GameObject launchedProjectile;
-  private Projectile projectile;
+  private ProjectileCreator projectile;
   private Vector3 lastLaunchPosition;
   private Vector3 lastLaunchDirection;
   private bool deactivated = false;
@@ -23,7 +23,7 @@ public class SlingshotCreator : uLink.MonoBehaviour {
 
   void Awake(){
     vehicle = transform.parent.GetComponent<PlayerVehicleCreator>();
-    reload();
+    //reload();
     maximumLaunchForce = minimumLaunchForce * 2f;
     inputSender = transform.parent.GetComponent<InputSender>();
   }
@@ -86,20 +86,31 @@ public class SlingshotCreator : uLink.MonoBehaviour {
     launchedProjectiles.Add(launchedProjectile);
     projectile.Arm();
     projectile = null;
-    Invoke("reload", 1f);
+    //Invoke("reload", 1f);
   }
 
   private void destroyLaunchedProjectile(){
     Network.Destroy(launchedProjectile);
   }
 
+  public void Reload(uLink.NetworkPlayer player, int ownerViewId){
+    Debug.Log("Server is reloading projectile");
+    Debug.Log("Instantiating new projectile on the server for player: " + player);
+    projectile = uLink.Network.Instantiate(player, "Projectile@Proxy", "Projectile@Owner", "Projectile@Creator", transform.position, transform.rotation, 0, ownerViewId).GetComponent<ProjectileCreator>();
+    Debug.Log("instantiated projectile: " + projectile);
+    Debug.Log("projectile network view: " + projectile.GetNetworkView());
+    Debug.Log("projectile network view owner is " + projectile.GetNetworkView().owner);
+    projectile.transform.parent = transform;
+  }
+
   // FIXME merge all this when the time comes
   private void reload(){
     if (deactivated) return;
 
-    projectile = Instantiate(projectilePrefab, transform.position, transform.rotation) as Projectile;
+    Debug.Log("Instantiating projectile on the server");
+    //projectile = uLink.Network.Instantiate(player, "Projectile@Proxy", "Projectile@Owner", "Projectile@Creator", transform.position, transform.rotation, 0).GetComponent<ProjectileCreator>();
+    Debug.Log("instantiated projectile: " + projectile);
     projectile.transform.parent = transform;
-    projectile.Disable();
   }
 
   // uLink.Network.Instantiate(projectile, slingshot.Position(), slingshot.Rotation(), 0);

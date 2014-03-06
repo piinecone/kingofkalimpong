@@ -33,8 +33,11 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
   }
 
   public void AimSlingshot(Quaternion rotation){
-    Debug.Log("Aiming slingshot on the server");
     networkView.RPC("AimSlingshot", uLink.RPCMode.Server, rotation);
+  }
+
+  public uLink.NetworkView GetNetworkView(){
+    return networkView;
   }
 }
 

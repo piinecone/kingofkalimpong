@@ -7,9 +7,6 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   [SerializeField]
   private Projectile projectilePrefab;
 
-  [SerializeField]
-  private uLinkNetworkView networkView;
-
   private PlayerVehicleOwner vehicle;
   private Vector3 mousePosition = Vector3.zero;
   private float relativeVelocityMultiplier = 100000f;
@@ -25,13 +22,25 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   private bool isNonPlayerCharacter = false;
   //public ProjectileCamera projectileCamera;
   private InputSender inputSender;
+  private uLink.NetworkView networkView;
 
   void Awake(){
     vehicle = transform.parent.GetComponent<PlayerVehicleOwner>();
-    reload();
+    networkView = vehicle.GetNetworkView();
+    Debug.Log("got network view: " + networkView);
+    //reload();
     maximumLaunchForce = minimumLaunchForce * 2f;
     inputSender = transform.parent.GetComponent<InputSender>();
     //projectileCamera.gameObject.SetActive(false);
+  }
+
+  void uLink_OnNetworkInstantiate(uLink.NetworkMessageInfo info){
+    vehicle = transform.parent.GetComponent<PlayerVehicleOwner>();
+    networkView = vehicle.GetNetworkView();
+    uLink.NetworkPlayer player = uLink.Network.player;
+    Debug.Log("instantiated slingshot for player: " + player);
+    Debug.Log("asking server to instantiate a projectile...");
+    networkView.RPC("ReloadProjectile", uLink.RPCMode.Server, player, networkView.viewID.id);
   }
 
   //void Start () {
@@ -128,7 +137,7 @@ public class SlingshotOwner : uLink.MonoBehaviour {
     launchedProjectiles.Add(launchedProjectile);
     projectile.Arm();
     projectile = null;
-    Invoke("reload", 1f);
+    //Invoke("reload", 1f);
   }
 
   private void destroyLaunchedProjectile(){
@@ -136,13 +145,13 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   }
 
   // FIXME merge all this when the time comes
-  private void reload(){
-    if (deactivated) return;
+  //private void reload(){
+  //  if (deactivated) return;
 
-    projectile = Instantiate(projectilePrefab, transform.position, transform.rotation) as Projectile;
-    projectile.transform.parent = transform;
-    projectile.Disable();
-  }
+  //  projectile = Instantiate(projectilePrefab, transform.position, transform.rotation) as Projectile;
+  //  projectile.transform.parent = transform;
+  //  projectile.Disable();
+  //}
 
   public void Deactivate(){
     deactivated = true;

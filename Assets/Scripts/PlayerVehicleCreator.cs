@@ -18,10 +18,18 @@ public class PlayerVehicleCreator : uLink.MonoBehaviour {
     return rigidbody.velocity;
   }
 
+  // FIXME this should probably be moved into the SlingshotCreator class, if it will remain accessible there
   [RPC]
   public void AimSlingshot(Quaternion rotation){
     networkView.RPC("AimSlingshot", uLink.RPCMode.OthersExceptOwner, rotation);
     slingshot.Aim(rotation);
+  }
+
+  [RPC]
+  public void ReloadProjectile(uLink.NetworkPlayer player, int ownerViewId){
+    Debug.Log("Received player: " + player + " and: " + ownerViewId);
+    //networkView.RPC("ReloadProjectile", uLink.RPCMode.OthersExceptOwner, player);
+    slingshot.Reload(player, ownerViewId);
   }
 }
 
