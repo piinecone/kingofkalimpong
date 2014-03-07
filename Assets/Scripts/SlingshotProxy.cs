@@ -26,4 +26,8 @@ public class SlingshotProxy : MonoBehaviour {
   public void SetProjectile(ProjectileProxy projectile){
     this.projectile = projectile;
   }
+
+  public void ReleaseProjectile(){
+    projectile.Release();
+  }
 }

@@ -40,6 +40,7 @@ public class PlayerVehicleCreator : uLink.MonoBehaviour {
   public void LaunchProjectile(Vector3 launchForce, Vector3 relativeForce, int shooterId){
     if (!destroyed && projectile != null){
       projectile.Fire(launchForce, relativeForce);
+      networkView.RPC("ReleaseProjectile", uLink.RPCMode.OthersExceptOwner);
       slingshot.AddToTrackedProjectiles(projectile);
     }
   }

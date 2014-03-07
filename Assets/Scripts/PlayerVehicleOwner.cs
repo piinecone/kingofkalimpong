@@ -75,7 +75,6 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
 
   [RPC]
   public void DestroyVehicle(Vector3 impactPosition){
-    Debug.Log("Owner received destroy vehicle command via RPC");
     collider.enabled = false;
     vehicleBody.collider.enabled = false;
     playDestructionSounds();

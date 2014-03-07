@@ -102,9 +102,7 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   }
 
   void launchProjectile(){
-    Debug.Log("Client: attempting to launch the projectile");
     if (projectile != null){
-      Debug.Log("Client: projectile is present, launching...");
       fireProjectile();
       recordLaunchPositionAndDirection();
     }
@@ -117,11 +115,10 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   }
 
   private void fireProjectile(){
-    Debug.Log("Client: firing projectile via RPC");
     Vector3 launchForceVector = launchVector();
     Vector3 relativeForceVector = determineRelativeForceVector();
     networkView.RPC("LaunchProjectile", uLink.RPCMode.Server, launchForceVector, relativeForceVector, networkView.viewID.id);
-    projectile.Release();
+    projectile.Release(); // should this be delayed 200ms?
     prepareNextProjectile();
   }
 

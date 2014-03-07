@@ -48,8 +48,12 @@ public class PlayerVehicleProxy : uLink.MonoBehaviour {
   }
 
   [RPC]
+  public void ReleaseProjectile(){
+    slingshot.ReleaseProjectile();
+  }
+
+  [RPC]
   public void DestroyVehicle(Vector3 impactPosition){
-    Debug.Log("Proxy received destroy vehicle command via RPC");
     collider.enabled = false;
     vehicleBody.collider.enabled = false;
     playDestructionSounds();
