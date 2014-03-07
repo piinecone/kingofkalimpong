@@ -95,15 +95,9 @@ public class SlingshotCreator : uLink.MonoBehaviour {
     return projectile;
   }
 
-  // uLink.Network.Instantiate(projectile, slingshot.Position(), slingshot.Rotation(), 0);
-  //private void createProjectile(){
-  //  //armedProjectile = Instantiate(projectile, origin, Quaternion.identity) as GameObject;
-  //  armedProjectile = Network.Instantiate(projectile, slingshot.transform.position, slingshot.transform.rotation, 0) as GameObject;
-  //  Debug.Log("Instantiated projectile: " + armedProjectile);
-  //  armedProjectile.transform.parent = transform;
-  //  disableProjectile();
-  //  //networkView.RPC("SpawnProjectile", RPCMode.Server, slingshot.transform.position);
-  //}
+  public void AddToTrackedProjectiles(ProjectileCreator projectile){
+    launchedProjectiles.Add(projectile.gameObject);
+  }
 
   public void Deactivate(){
     deactivated = true;
@@ -114,7 +108,7 @@ public class SlingshotCreator : uLink.MonoBehaviour {
     return launchedProjectiles.Contains(projectileGameObject);
   }
 
-  //void OnTriggerEnter(Collider aCollider){
-  //  vehicle.OnTriggerEnter(aCollider);
-  //}
+  void OnTriggerEnter(Collider aCollider){
+    vehicle.OnTriggerEnter(aCollider);
+  }
 }

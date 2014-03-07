@@ -38,8 +38,10 @@ public class PlayerVehicleCreator : uLink.MonoBehaviour {
 
   [RPC]
   public void LaunchProjectile(Vector3 launchForce, Vector3 relativeForce, int shooterId){
-    if (!destroyed && projectile != null)
+    if (!destroyed && projectile != null){
       projectile.Fire(launchForce, relativeForce);
+      slingshot.AddToTrackedProjectiles(projectile);
+    }
   }
 
   public void OnTriggerEnter(Collider aCollider){
@@ -83,15 +85,13 @@ public class PlayerVehicleCreator : uLink.MonoBehaviour {
   }
 
   private bool shouldBeDestroyedByVehicleCollisionWith(Collider aCollider, float impactForce){
-    return (aCollider.gameObject.tag == "Nugget");
-    //return (aCollider.gameObject.tag == "Nugget" && impactForce >= 23f &&
-    //    rigidbody.velocity.magnitude <= impactForce && impactIsCloseEnoughToImpactPoint(aCollider, impactForce + 10f));
+    return (aCollider.gameObject.tag == "Nugget" && impactForce >= 23f &&
+      rigidbody.velocity.magnitude <= impactForce && impactIsCloseEnoughToImpactPoint(aCollider, impactForce + 10f));
   }
 
   private bool shouldBeDestroyedByProjectileCollisionWith(Collider aCollider, float impactForce){
-    return (aCollider.gameObject.tag == "Rock");
-    //return (aCollider.gameObject.tag == "Rock" && impactForce >= 13f &&
-    //    !slingshot.LaunchedThisProjectile(aCollider.gameObject) && impactIsCloseEnoughToImpactPoint(aCollider, impactForce));
+    return (aCollider.gameObject.tag == "Rock" && impactForce >= 13f &&
+        !slingshot.LaunchedThisProjectile(aCollider.gameObject) && impactIsCloseEnoughToImpactPoint(aCollider, impactForce));
   }
 
   private bool impactIsCloseEnoughToImpactPoint(Collider aCollider, float impactForce){

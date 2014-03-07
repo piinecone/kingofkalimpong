@@ -18,6 +18,7 @@ public class PlayerVehicleProxy : uLink.MonoBehaviour {
     getVehicleComponents();
     getVehicleBodyComponents();
     getSlingshot();
+    getDestructionAudio();
   }
 
   private void getVehicleComponents(){
@@ -37,6 +38,10 @@ public class PlayerVehicleProxy : uLink.MonoBehaviour {
     slingshot = GetComponentInChildren<SlingshotProxy>();
   }
 
+  private void getDestructionAudio(){
+    destructionAudio = GetComponentInChildren<DestructionAudio>();
+  }
+
   [RPC]
   public void AimSlingshot(Quaternion rotation){
     if (!destroyed) slingshot.Aim(rotation);
@@ -47,7 +52,7 @@ public class PlayerVehicleProxy : uLink.MonoBehaviour {
     Debug.Log("Proxy received destroy vehicle command via RPC");
     collider.enabled = false;
     vehicleBody.collider.enabled = false;
-    //playDestructionSounds();
+    playDestructionSounds();
     explode(impactPosition);
     slingshot.Deactivate();
     vehicleAudio.VehicleWasDestroyed();
@@ -71,5 +76,9 @@ public class PlayerVehicleProxy : uLink.MonoBehaviour {
       if (hit && hit.rigidbody)
         hit.rigidbody.AddExplosionForce(power, thePosition, radius, upwardsModifier, ForceMode.Impulse);
     }
+  }
+
+  private void playDestructionSounds(){
+    destructionAudio.Play();
   }
 }

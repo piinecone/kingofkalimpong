@@ -20,6 +20,7 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
     getVehicleComponents();
     getVehicleBodyComponents();
     getSlingshot();
+    getDestructionAudio();
   }
 
   void Start(){
@@ -51,6 +52,10 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
 
   private void getSlingshot(){
     slingshot = GetComponentInChildren<SlingshotOwner>();
+  }
+
+  private void getDestructionAudio(){
+    destructionAudio = GetComponentInChildren<DestructionAudio>();
   }
 
   void Update () {
@@ -105,7 +110,7 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
   }
 
   private void playDestructionSounds(){
-    //destructionAudio.Play();
+    destructionAudio.Play();
   }
 }
 
