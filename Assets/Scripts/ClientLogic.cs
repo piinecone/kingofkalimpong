@@ -5,7 +5,8 @@ using System.Net;
 public class ClientLogic : MonoBehaviour {
 
   void Start () {
-    uLink.Network.Connect("127.0.0.1", 7100);
+    //uLink.Network.Connect("127.0.0.1", 7100);
+    uLink.Network.Connect("192.168.1.111", 7100);
   }
   
   void uLink_OnConnectedToServer(IPEndPoint server){
