@@ -7,14 +7,15 @@ public class ProjectileProxy : MonoBehaviour {
   private uLinkSmoothRigidbodyImproved smoothRigidbody;
   private Vector3 releasePosition;
   private Vector3 maxScale;
+  private bool released = false;
 
   void Start(){
+    releasePosition = transform.position;
     maxScale = new Vector3(.3f,.3f,.3f);
   }
 
   void FixedUpdate(){
-  //void LateUpdate(){
-    if (transform.position.y > (releasePosition.y + 25f))
+    if (released && transform.position.y > (releasePosition.y + 25f))
       transform.localScale = Vector3.Lerp(transform.localScale, maxScale, .5f * Time.deltaTime);
   }
   public void Loosen(){
@@ -24,6 +25,7 @@ public class ProjectileProxy : MonoBehaviour {
   }
 
   public void Release(){
+    released = true;
     transform.parent = null;
     smoothRigidbody.enabled = true;
     rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
