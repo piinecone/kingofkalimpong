@@ -11,7 +11,7 @@ public class SlingshotCreator : uLink.MonoBehaviour {
   private Vector3 mousePosition = Vector3.zero;
   private float relativeVelocityMultiplier = 100000f;
   private float launchForce = 0f;
-  private float minimumLaunchForce = 30000f;
+  private float minimumLaunchForce = 45000f;
   private float maximumLaunchForce;
   private List<GameObject> launchedProjectiles = new List<GameObject>();
   private GameObject launchedProjectile;
