@@ -27,55 +27,26 @@ public class SlingshotCreator : uLink.MonoBehaviour {
     inputSender = transform.parent.GetComponent<InputSender>();
   }
 
-  //[RPC]
-  //public void Aim(Quaternion targetRotation){
-  //  //networkView.RPC("Aim", uLink.RPCMode.OthersExceptOwner, mousePosition);
-  //}
-
   public void Aim(Quaternion rotation){
     transform.rotation = Quaternion.Slerp(transform.rotation, rotation, 25f * Time.deltaTime);
   }
 
-  public void ChargeProjectile(bool fireButtonPressed){
-    //if (Input.GetMouseButton(0)){
-    if (fireButtonPressed){
-      launchForce = Mathf.Max(launchForce + minimumLaunchForce/75f, minimumLaunchForce);
-    } else {
-      if (launchForce >= minimumLaunchForce) launchProjectile();
-      launchForce = 0f;
-    }
-  }
-
-  private Vector3 launchVector(){
+  public Vector3 GetLaunchVector(float launchForce){
     float forceMultiplier = Mathf.Clamp(launchForce, minimumLaunchForce, maximumLaunchForce);
     Vector3 direction = transform.forward.normalized;
     return direction * forceMultiplier;
   }
 
-  void launchProjectile(){
-    if (projectile != null){
-      fireProjectile();
-      recordLaunchPositionAndDirection();
-    }
+  public Vector3 GetRelativeForceVector(){
+    if (vehicle.Velocity().magnitude >= 1f)
+      return vehicle.Velocity() * relativeVelocityMultiplier;
+    return Vector3.zero;
   }
 
   private void recordLaunchPositionAndDirection(){
     lastLaunchPosition = transform.position;
     lastLaunchDirection = transform.forward;
     //projectileCamera.SetLaunchedProperties(projectile: launchedProjectile, position: lastLaunchPosition, direction: lastLaunchDirection);
-  }
-
-  private void fireProjectile(){
-    Vector3 launchForceVector = launchVector();
-    Vector3 relativeForceVector = determineRelativeForceVector();
-    projectile.Fire(launchForce: launchForceVector, relativeForce: relativeForceVector);
-    prepareNextProjectile();
-  }
-
-  private Vector3 determineRelativeForceVector(){
-    if (vehicle.Velocity().magnitude >= 1f)
-      return vehicle.Velocity() * relativeVelocityMultiplier;
-    return Vector3.zero;
   }
 
   private void prepareNextProjectile(){

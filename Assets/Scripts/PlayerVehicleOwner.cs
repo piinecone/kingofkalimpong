@@ -74,6 +74,11 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
   }
 
   [RPC]
+  public void ReleaseProjectile(){
+    slingshot.ReleaseProjectile();
+  }
+
+  [RPC]
   public void DestroyVehicle(Vector3 impactPosition){
     collider.enabled = false;
     vehicleBody.collider.enabled = false;

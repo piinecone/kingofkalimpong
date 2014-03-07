@@ -115,10 +115,12 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   }
 
   private void fireProjectile(){
-    Vector3 launchForceVector = launchVector();
-    Vector3 relativeForceVector = determineRelativeForceVector();
-    networkView.RPC("LaunchProjectile", uLink.RPCMode.Server, launchForceVector, relativeForceVector, networkView.viewID.id);
-    projectile.Release(); // should this be delayed 200ms?
+    //projectile.Fire(launchVector(), determineRelativeForceVector());
+    networkView.RPC("LaunchProjectile", uLink.RPCMode.Server, player, launchForce, networkView.viewID.id);
+  }
+
+  public void ReleaseProjectile(){
+    projectile.Release();
     prepareNextProjectile();
   }
 

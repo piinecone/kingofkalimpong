@@ -5,6 +5,15 @@ public class ProjectileOwner : uLink.MonoBehaviour {
 
   private SlingshotOwner slingshot;
   private uLinkSmoothRigidbodyImproved smoothRigidbody;
+  private float torqueMultiplier = 150000f;
+
+  public void Fire(Vector3 launchForce, Vector3 relativeForce){
+    Release();
+    rigidbody.AddForce(relativeForce);
+    rigidbody.AddForce(launchForce.x, launchForce.y, launchForce.z, ForceMode.Impulse);
+    rigidbody.AddTorque(transform.right * torqueMultiplier);
+    Invoke("enableCollider", .25f);
+  }
 
   public void Loosen(){
     Release();
