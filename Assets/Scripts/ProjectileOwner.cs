@@ -6,6 +6,18 @@ public class ProjectileOwner : uLink.MonoBehaviour {
   private SlingshotOwner slingshot;
   private uLinkSmoothRigidbodyImproved smoothRigidbody;
   private float torqueMultiplier = 150000f;
+  private Vector3 releasePosition;
+  private Vector3 maxScale;
+
+  void Start(){
+    maxScale = new Vector3(.3f,.3f,.3f);
+  }
+
+  void FixedUpdate(){
+  //void LateUpdate(){
+    if (transform.position.y > (releasePosition.y + 25f))
+      transform.localScale = Vector3.Lerp(transform.localScale, maxScale, .5f * Time.deltaTime);
+  }
 
   public void Fire(Vector3 launchForce, Vector3 relativeForce){
     Release();

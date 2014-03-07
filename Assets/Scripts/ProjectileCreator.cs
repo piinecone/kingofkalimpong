@@ -7,10 +7,22 @@ public class ProjectileCreator : uLink.MonoBehaviour {
   private uLinkSmoothRigidbodyImproved smoothRigidbody;
   private int ownerViewId;
   private float torqueMultiplier = 150000f;
+  private Vector3 releasePosition;
+  private Vector3 maxScale;
 
   void Awake(){
     smoothRigidbody = GetComponent<uLinkSmoothRigidbodyImproved>();
     Disable();
+  }
+
+  void Start(){
+    maxScale = new Vector3(.3f,.3f,.3f);
+  }
+
+  void FixedUpdate(){
+  //void LateUpdate(){
+    if (transform.position.y > (releasePosition.y + 25f))
+      transform.localScale = Vector3.Lerp(transform.localScale, maxScale, .5f * Time.deltaTime);
   }
 
   public void Loosen(){
@@ -28,6 +40,7 @@ public class ProjectileCreator : uLink.MonoBehaviour {
   }
 
   public void Release(){
+    releasePosition = transform.position;
     transform.parent = null;
     smoothRigidbody.enabled = true;
     rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
