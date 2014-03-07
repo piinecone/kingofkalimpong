@@ -13,12 +13,10 @@ public class ProjectileCreator : uLink.MonoBehaviour {
     Disable();
   }
 
-  void Start () {
-  
-  }
-  
-  void Update () {
-  
+  public void Loosen(){
+    Release();
+    enableCollider();
+    rigidbody.mass = 20;
   }
 
   public void Fire(Vector3 launchForce, Vector3 relativeForce){
@@ -57,8 +55,5 @@ public class ProjectileCreator : uLink.MonoBehaviour {
     rigidbody.isKinematic = true;
     collider.enabled = false;
     smoothRigidbody.enabled = false;
-  }
-
-  public void Loosen(){
   }
 }

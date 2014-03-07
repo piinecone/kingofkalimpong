@@ -19,11 +19,21 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
     mainCamera = GameObject.FindWithTag("MainCamera").camera;
     getVehicleComponents();
     getVehicleBodyComponents();
+    getSlingshot();
   }
 
   void Start(){
+    setCamera();
+  }
+
+  void setCamera(){
     if (networkView.isMine)
       mainCamera.GetComponent<CamSmoothFollow>().target = vehicleController.CenterOfMass;
+  }
+
+  void resetCamera(){
+    if (networkView.isMine)
+      mainCamera.GetComponent<CamSmoothFollow>().target = mainCamera.transform;
   }
 
   private void getVehicleComponents(){
@@ -37,6 +47,10 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
     VehicleComponent[] components = GetComponentsInChildren<VehicleComponent>(true);
     foreach(VehicleComponent component in components)
       vehicleComponents.Add(component);
+  }
+
+  private void getSlingshot(){
+    slingshot = GetComponentInChildren<SlingshotOwner>();
   }
 
   void Update () {
@@ -59,12 +73,17 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
     Debug.Log("Owner received destroy vehicle command via RPC");
     collider.enabled = false;
     vehicleBody.collider.enabled = false;
-    //playDestructionSounds();
+    playDestructionSounds();
     explode(impactPosition);
-    //slingshot.Deactivate();
+    slingshot.Deactivate();
     destroyed = true;
-    //vehicleAudio.VehicleWasDestroyed();
-    //vehicleAudio.enabled = false;
+    vehicleAudio.VehicleWasDestroyed();
+    vehicleAudio.enabled = false;
+    Invoke("requestRespawn", 3f);
+  }
+
+  private void requestRespawn(){
+    networkView.RPC("RespawnPlayer", uLink.RPCMode.Server);
   }
 
   private void explode(Vector3 impactPosition){

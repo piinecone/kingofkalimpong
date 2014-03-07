@@ -6,15 +6,10 @@ public class ProjectileOwner : uLink.MonoBehaviour {
   private SlingshotOwner slingshot;
   private uLinkSmoothRigidbodyImproved smoothRigidbody;
 
-  void Awake(){
-  }
-
-  void Start () {
-  
-  }
-  
-  void Update () {
-  
+  public void Loosen(){
+    Release();
+    enableCollider();
+    rigidbody.mass = 20;
   }
 
   public void Release(){

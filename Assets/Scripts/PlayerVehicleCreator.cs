@@ -2,86 +2,71 @@
 using System.Collections;
 
 public class PlayerVehicleCreator : uLink.MonoBehaviour {
+  [SerializeField]
+  private GameObject vehicleBody;
+
   private Camera mainCamera;
   private SlingshotCreator slingshot;
   private ProjectileCreator projectile;
   private bool destroyed = false;
+  private ServerLogic server;
 
   void Awake(){
+    server = GameObject.FindWithTag("Server").GetComponent<ServerLogic>();
     slingshot = GetComponentInChildren<SlingshotCreator>();
-  }
-
-  void Start () {
-    //mainCamera = GameObject.FindWithTag("MainCamera").camera;
-    //mainCamera.GetComponent<CamSmoothFollow>().target = transform;
   }
 
   public Vector3 Velocity(){
     return rigidbody.velocity;
   }
 
-  // FIXME this should probably be moved into the SlingshotCreator class, if it will remain accessible there
   [RPC]
   public void AimSlingshot(Quaternion rotation){
-    networkView.RPC("AimSlingshot", uLink.RPCMode.OthersExceptOwner, rotation);
-    slingshot.Aim(rotation);
+    if (!destroyed){
+      networkView.RPC("AimSlingshot", uLink.RPCMode.OthersExceptOwner, rotation);
+      slingshot.Aim(rotation);
+    }
   }
 
   [RPC]
   public void ReloadProjectile(uLink.NetworkPlayer player, int ownerViewId){
-    //networkView.RPC("ReloadProjectile", uLink.RPCMode.OthersExceptOwner, player);
-    projectile = slingshot.Reload(player, ownerViewId);
+    if (!destroyed){
+      //networkView.RPC("ReloadProjectile", uLink.RPCMode.OthersExceptOwner, ownerViewId);
+      projectile = slingshot.Reload(player, ownerViewId);
+    }
   }
 
   [RPC]
   public void LaunchProjectile(Vector3 launchForce, Vector3 relativeForce, int shooterId){
-    if (projectile != null){
+    if (!destroyed && projectile != null)
       projectile.Fire(launchForce, relativeForce);
-    }
   }
 
   public void OnTriggerEnter(Collider aCollider){
-    if (shouldBeDestroyedBy(aCollider)){
-      //DestroyVehicle(aCollider);
-      Debug.Log("Server: destroying vehicle");
-      //destroyVehicle(aCollider);
+    if (shouldBeDestroyedBy(aCollider))
       networkView.RPC("DestroyVehicle", uLink.RPCMode.All, aCollider.transform.position);
-    }
   }
 
   [RPC]
   public void DestroyVehicle(Vector3 impactPosition){
-    Debug.Log("Server received destroy vehicle command via RPC");
-    //collider.enabled = false;
-    //vehicleBody.collider.enabled = false;
-    //playDestructionSounds();
-    //explode(aCollider);
-    //slingshot.Deactivate();
-    //destroyed = true;
-    //vehicleAudio.VehicleWasDestroyed();
-    //vehicleAudio.enabled = false;
+    collider.isTrigger = true;
+    vehicleBody.collider.isTrigger = true;
+    destroyed = true;
+    projectile.Loosen();
+    rigidbody.constraints = RigidbodyConstraints.FreezeAll;
   }
 
-  //public void destroyVehicle(Collider aCollider){
-  //  Debug.Log("Server received destroy vehicle command");
-  //}
+  [RPC]
+  public void RespawnPlayer(uLink.NetworkMessageInfo info){
+    server.DestroyAndRespawnPlayer(info.sender);
+    //networkView.RPC("ReanimateAt", uLink.RPCMode.All, server.RandomSpawnPoint().position);
+  }
 
   private void explode(Collider aCollider){
     //foreach (VehicleComponent component in vehicleComponents)
     //  component.DetachWithForce(rigidbody.velocity);
     //generateExplosiveForceAtPosition(aCollider.transform.position); // FIXME move to coroutine and delay
     //vehicleController.readUserInput = false;
-  }
-
-  private void generateExplosiveForceAtPosition(Vector3 thePosition){
-    float power = 1000f;
-    float radius = 10f;
-    float upwardsModifier = 1f;
-    Collider[] colliders = Physics.OverlapSphere(thePosition, radius);
-    foreach (Collider hit in colliders){
-      if (hit && hit.rigidbody)
-        hit.rigidbody.AddExplosionForce(power, thePosition, radius, upwardsModifier, ForceMode.Impulse);
-    }
   }
 
   private void playDestructionSounds(){

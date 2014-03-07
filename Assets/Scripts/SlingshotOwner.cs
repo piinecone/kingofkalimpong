@@ -44,12 +44,8 @@ public class SlingshotOwner : uLink.MonoBehaviour {
     this.projectile = projectile;
   }
 
-  //void Start () {
-  //  isNonPlayerCharacter = vehicle.NonPlayerCharacter();
-  //}
-
   void Update () {
-    if (isNonPlayerCharacter || deactivated) return;
+    if (deactivated) return;
 
     aim();
     chargeProjectile();
@@ -161,7 +157,7 @@ public class SlingshotOwner : uLink.MonoBehaviour {
 
   public void Deactivate(){
     deactivated = true;
-    //if (projectile) projectile.Loosen(); // RPC to drop the boulder
+    if (projectile) projectile.Loosen();
   }
 
   public bool LaunchedThisProjectile(GameObject projectileGameObject){
