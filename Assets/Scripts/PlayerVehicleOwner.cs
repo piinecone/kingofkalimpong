@@ -14,13 +14,17 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
   private SlingshotOwner slingshot;
   private bool destroyed = false;
   private DestructionAudio destructionAudio;
+  private ProjectileCamera projectileCamera;
 
   void Awake(){
     mainCamera = GameObject.FindWithTag("MainCamera").camera;
+    projectileCamera = GetComponentInChildren<ProjectileCamera>() as ProjectileCamera;
     getVehicleComponents();
     getVehicleBodyComponents();
     getSlingshot();
     getDestructionAudio();
+    projectileCamera.Initialize(camera: mainCamera, slingshot: slingshot);
+    slingshot.projectileCamera = projectileCamera;
   }
 
   void Start(){

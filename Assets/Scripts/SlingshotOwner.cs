@@ -20,7 +20,7 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   private Vector3 lastLaunchDirection;
   private bool deactivated = false;
   private bool isNonPlayerCharacter = false;
-  //public ProjectileCamera projectileCamera;
+  public ProjectileCamera projectileCamera;
   private InputSender inputSender;
   private uLink.NetworkView networkView;
   private uLink.NetworkPlayer player;
@@ -30,7 +30,7 @@ public class SlingshotOwner : uLink.MonoBehaviour {
     networkView = vehicle.GetNetworkView();
     maximumLaunchForce = minimumLaunchForce * 2f;
     inputSender = transform.parent.GetComponent<InputSender>();
-    //projectileCamera.gameObject.SetActive(false);
+    projectileCamera.gameObject.SetActive(false);
   }
 
   void uLink_OnNetworkInstantiate(uLink.NetworkMessageInfo info){
@@ -49,13 +49,13 @@ public class SlingshotOwner : uLink.MonoBehaviour {
 
     aim();
     chargeProjectile();
-    //toggleProjectileCamera();
+    toggleProjectileCamera();
   }
 
-  //private void toggleProjectileCamera(){
-  //  if (Input.GetKeyDown(KeyCode.C))
-  //    projectileCamera.Toggle();
-  //}
+  private void toggleProjectileCamera(){
+    if (Input.GetKeyDown(KeyCode.C))
+      projectileCamera.Toggle();
+  }
 
   private void aim(){
     if (Camera.main == null || !Camera.main.active) return;
@@ -104,14 +104,13 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   void launchProjectile(){
     if (projectile != null){
       fireProjectile();
-      recordLaunchPositionAndDirection();
     }
   }
 
   private void recordLaunchPositionAndDirection(){
     lastLaunchPosition = transform.position;
     lastLaunchDirection = transform.forward;
-    //projectileCamera.SetLaunchedProperties(projectile: launchedProjectile, position: lastLaunchPosition, direction: lastLaunchDirection);
+    projectileCamera.SetLaunchedProperties(projectile: launchedProjectile, position: lastLaunchPosition, direction: lastLaunchDirection);
   }
 
   private void fireProjectile(){
@@ -122,6 +121,7 @@ public class SlingshotOwner : uLink.MonoBehaviour {
   public void ReleaseProjectile(){
     projectile.Release();
     prepareNextProjectile();
+    recordLaunchPositionAndDirection();
   }
 
   private Vector3 determineRelativeForceVector(){
