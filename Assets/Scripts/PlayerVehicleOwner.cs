@@ -6,6 +6,9 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
   [SerializeField]
   private GameObject vehicleBody;
 
+  [SerializeField]
+  private Camera driverCamera;
+
   private Camera mainCamera;
   private Camera mapCamera;
   private CarControl vehicleController;
@@ -18,19 +21,24 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
   private ProjectileCamera projectileCamera;
 
   void Awake(){
-    mainCamera = GameObject.FindWithTag("MainCamera").camera;
-    mapCamera = GameObject.FindWithTag("MapCamera").camera;
-    projectileCamera = GetComponentInChildren<ProjectileCamera>() as ProjectileCamera;
+    getCameras();
     getVehicleComponents();
     getVehicleBodyComponents();
     getSlingshot();
     getDestructionAudio();
     projectileCamera.Initialize(camera: mainCamera, slingshot: slingshot);
+    driverCamera.active = false;
     slingshot.projectileCamera = projectileCamera;
   }
 
   void Start(){
     setCamera();
+  }
+
+  void getCameras(){
+    mainCamera = GameObject.FindWithTag("MainCamera").camera;
+    mapCamera = GameObject.FindWithTag("MapCamera").camera;
+    projectileCamera = GetComponentInChildren<ProjectileCamera>() as ProjectileCamera;
   }
 
   void setCamera(){
@@ -40,9 +48,12 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
     }
   }
 
-  void resetCamera(){
-    if (networkView.isMine)
-      mainCamera.GetComponent<CamSmoothFollow>().target = mainCamera.transform;
+  void resetCameras(){
+    if (networkView.isMine){
+      mainCamera.active = true;
+      driverCamera.active = false;
+      projectileCamera.active = false;
+    }
   }
 
   private void getVehicleComponents(){
@@ -67,6 +78,15 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
   }
 
   void Update () {
+    if (Input.GetKeyDown(KeyCode.R)){
+      if (mainCamera.active && driverCamera != null){
+        mainCamera.active = false;
+        driverCamera.active = true;
+      } else if (driverCamera.active) {
+        mainCamera.active = true;
+        driverCamera.active = false;
+      }
+    }
   }
 
   public Vector3 Velocity(){
@@ -88,6 +108,7 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
 
   [RPC]
   public void DestroyVehicle(Vector3 impactPosition){
+    resetCameras();
     collider.enabled = false;
     vehicleBody.collider.enabled = false;
     playDestructionSounds();
