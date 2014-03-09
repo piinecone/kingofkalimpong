@@ -7,6 +7,7 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
   private GameObject vehicleBody;
 
   private Camera mainCamera;
+  private Camera mapCamera;
   private CarControl vehicleController;
   private CarSound vehicleAudio;
   private CarSettings vehicleSettings;
@@ -18,6 +19,7 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
 
   void Awake(){
     mainCamera = GameObject.FindWithTag("MainCamera").camera;
+    mapCamera = GameObject.FindWithTag("MapCamera").camera;
     projectileCamera = GetComponentInChildren<ProjectileCamera>() as ProjectileCamera;
     getVehicleComponents();
     getVehicleBodyComponents();
@@ -32,8 +34,10 @@ public class PlayerVehicleOwner : uLink.MonoBehaviour {
   }
 
   void setCamera(){
-    if (networkView.isMine)
+    if (networkView.isMine){
       mainCamera.GetComponent<CamSmoothFollow>().target = vehicleController.CenterOfMass;
+      mapCamera.GetComponent<CamSmoothFollow>().target = vehicleController.CenterOfMass;
+    }
   }
 
   void resetCamera(){
