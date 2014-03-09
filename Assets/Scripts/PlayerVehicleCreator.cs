@@ -89,7 +89,7 @@ public class PlayerVehicleCreator : uLink.MonoBehaviour {
   }
 
   private bool shouldBeDestroyedByVehicleCollisionWith(Collider aCollider, float impactForce){
-    return (aCollider.gameObject.tag == "Nugget" && impactForce >= 23f &&
+    return (aCollider.gameObject.tag == "Nugget" && impactForce >= 21f &&
       rigidbody.velocity.magnitude <= impactForce && impactIsCloseEnoughToImpactPoint(aCollider, impactForce + 10f));
   }
 
