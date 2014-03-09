@@ -15,8 +15,9 @@ public class ServerLogic : MonoBehaviour {
   }
 
   void Start(){
-    uLink.Network.InitializeServer(8, 25002);
-    uLink.MasterServer.RegisterHost("KingOfKalimpong", "Mammoth", "The King of Kalimpong");
+    //uLink.Network.useProxy = true;
+    //uLink.Network.InitializeServer(8, 25002, !uLink.Network.HavePublicAddress());
+    //uLink.MasterServer.RegisterHost("KingOfKalimpong", "Mammoth", "The King of Kalimpong");
     mainCameraFollow(spawnPoints[0].transform);
   }
 
@@ -25,7 +26,6 @@ public class ServerLogic : MonoBehaviour {
   }
 
   private void focusOnNextTarget(){
-    Debug.Log("switching targets...");
     if (vehicles.Count > 0){
       Transform nextTarget = vehicles[Random.Range(0, vehicles.Count)].CenterOfMass;
       mainCameraFollow(nextTarget);
